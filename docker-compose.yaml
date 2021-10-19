@@ -1,10 +1,6 @@
-#docker run -d --entrypoint /usr/bin/php --name phpinfo -p 8080:8080 --restart always 
-# -v ${PWD}/src/index.php:/index.php:ro albertocuestanoriega/phpinfo:santander-optimizado -f index.php -S 0.0.0.0:8080                 
-
 config:
   phpinfo:
-    file: ./src/index.php
-    
+    file: ./src/index.php 
 services:
   phpinfo:
     command:
