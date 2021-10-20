@@ -42,7 +42,7 @@ spec:
           -
             key: index.php
             mode: 0400
-            path: /src/index.php
+            path: ./src/index.php
         name: phpinfo-cm
         # kubectl create cm --from-file ./src/index.php phpinfo-cm
       name: phpinfo-volume
