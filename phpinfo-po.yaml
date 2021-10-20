@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: phpinfo-p
+  name: phpinfo-po
   labels:
     app: phpinfo
     branch: santander-openshift
