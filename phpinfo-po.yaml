@@ -22,7 +22,7 @@ spec:
         -
           name: JAVAHOME
           value: /var/lib/java
-      image: albertocuestanoriega/phpinfo:santander-optimizado        
+      image: albertocuestanoriega/phpinfo:santander       
       name: phpinfo-container
       ports:
         -
