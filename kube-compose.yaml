@@ -24,15 +24,16 @@ spec:
           value: /var/lib/java
       image: albertocuestanoriega/phpinfo:santander-optimizado        
       name: phpinfo-container
-      ports: 
-        containerPort: 8080
-        protocol: TCP
+      ports:
+        -
+          containerPort: 8080
+          protocol: TCP
       volumeMounts:
         -
           mountPath: /src/index.php
           name: phpinfo-volume
           readOnly: true
-          subPath: /src/index.php
+          subPath: index.php
   volumes:
     -
       configMap:
