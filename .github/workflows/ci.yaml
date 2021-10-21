@@ -1,7 +1,8 @@
 name: CI
 on:
   push:
-    - santander
+    branches:
+      - santander
 jobs:
   docker:
     runs-on: ubuntu-18.04
