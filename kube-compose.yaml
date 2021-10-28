@@ -3,56 +3,17 @@ kind: ReplicationController
 metadata: 
   name: hasher-rc
 spec:
-  replicas: 2
-  selector: 
-    app: phpinfo
-    branch: istio
-  template:
-    metadata: 
-      annotations:
-        sidecar.istio.io/inject: true
-      labels: 
-        app: phpinfo
-        branch: santander
-    spec: 
-      containers:
-        - 
-          env: 
-            - 
-              name: author
-              value: Alberto Cuesta
-          #image: albertocuestanoriega/dockercoins:santander-hasher
-          image: secobau/phpinfo:1.4
-
-          # imagePullPolicy: Always
-          name: phpinfo-container
-          ports: 
-            -  
-              containerPort: 8080
-              protocol: TCP
-          volumeMounts: 
-            - 
-              mountPath: /phpinfo.php
-              name: phpinfo-volume
-              readOnly: true
-              subPath: phpinfo.php
----
-apiVersion: v1
-kind: ReplicationController
-metadata: 
-  name: hasher-rc
-spec:
-  replicas: 2
+  replicas: 1
   selector: 
     app: hasher
     branch: istio
   template:
     metadata: 
       annotations:
-        sidecar.istio.io/inject: true
+        sidecar.istio.io/inject: 'true'
       labels: 
         app: hasher
-        branch: santander
+        branch: istio
     spec: 
       containers:
         - 
@@ -60,35 +21,41 @@ spec:
             - 
               name: author
               value: Alberto Cuesta
-          #image: albertocuestanoriega/dockercoins:santander-hasher
-          image: academiaonline/dockercoins:2.6-hasher
-
-          # imagePullPolicy: Always
           name: hasher-container
           ports: 
             -  
               containerPort: 8080
               protocol: TCP
-          volumeMounts: 
-            - 
-              mountPath: /hasher.rb
-              name: hasher-volume
-              readOnly: true
-              subPath: hasher.rb
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: phpinfo-pvc
+kind: ReplicationController
+metadata: 
+  name: phpinfo-rc
 spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    limits:
-      storage: 1Gi
-    requests:
-      storage: 1Gi
-  storageClassName: gp2
+  replicas: 1
+  selector: 
+    app: phpinfo
+    branch: istio
+  template:
+    metadata: 
+      annotations:
+        sidecar.istio.io/inject: 'true'
+      labels: 
+        app: phpinfo
+        branch: istio
+    spec: 
+      containers:
+        - 
+          env: 
+            - 
+              name: author
+              value: Alberto Cuesta
+          image: secobau/phpinfo:1.4
+          name: phpinfo-container
+          ports: 
+            -  
+              containerPort: 8080
+              protocol: TCP
 ---
 apiVersion: v1
 kind: Service
@@ -114,15 +81,37 @@ metadata:
   name: phpinfo
 spec:
   host: phpinfo
-  subsets: 
-    -
-      name: phpinfo
-      labels: 
-        app: phpinfo
+  subsets:
     -
       name: hasher
-      labels: 
+      labels:
         app: hasher
+    -
+      name: phpinfo
+      labels:
+        app: phpinfo
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: phpinfo
+spec:
+  hosts:
+    - '*'
+  gateways:
+    - phpinfo
+  http:
+    -
+      match:
+        -
+          uri:
+            exact: /phpinfo/
+      route:
+        -
+          destination: 
+            host: phpinfo
+            port:
+              number: 8080
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -132,32 +121,10 @@ spec:
   selector:
     istio: ingressgateway
   servers:
-    - 
+    -
       port:
         name: http
         number: 80
         protocol: HTTP
       hosts:
         - '*'
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: dockercoins
-spec:
-  hosts:
-    - '*'  #cualquier host, nombre de dominio, pasará por istio
-  gateways:
-    - dockercoins
-  http:
-    -
-      match:
-        -
-          uri:
-            exact: /
-      route:
-        - 
-          destination: 
-            host: dockercoins
-            port:
-              - number: 8080
